@@ -45,7 +45,7 @@ for company in companies:
     with open(f"{company}_combined_financials.csv", newline='') as csvfile:
         lines = csvfile.readlines()
     # Add 'Date' before the first comma in the header row
-    lines[0] = lines[0].replace(',', 'Date,')
+    lines[0] = 'Date' + lines[0]
     # Write the modified content back to the CSV file
     with open(f"{company}_combined_financials.csv", 'w', newline='') as csvfile:
         csvfile.writelines(lines)
@@ -74,6 +74,20 @@ for company in companies:
                 print(f"Error fetching price for {company} on {date}: {e}")
         # Drop rows where the price could not be obtained
         df = df.dropna(subset=['Price'])
+
         # Write
         df.to_csv(f"{company}_combined_financials.csv", index=False)
-            
+
+# calc price change in 1 year (target variable for ML)
+for company in companies:
+    with open(f"{company}_combined_financials.csv", newline='') as csvfile:
+        # Read the CSV file
+        df = pd.read_csv(csvfile)
+        df['Price Change'] = float('nan')
+        for i, date in df.iloc[:, 0].items():      
+            try: 
+                df.at[i, 'Price Change'] = df.at[i - 1, 'Price']/df.at[i, 'Price']
+            except:
+                pass
+        # Write
+        df.to_csv(f"{company}_combined_financials.csv", index=False)
