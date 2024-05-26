@@ -104,7 +104,7 @@ for company in companies:
         # Write
         df.to_csv(f"{company}_combined_financials.csv", index=False)
 
-# Combine all csvs
+# Combine all CSVs
 unique_headers = set()
 for company in companies:
     with open(f"{company}_combined_financials.csv", newline='') as f:
@@ -140,3 +140,33 @@ with open('combined.csv', 'w', newline='') as output_csv:
                     if header not in row:
                         row[header] = "NA"
                 writer.writerow(row)
+
+# dd NA
+with open('combined.csv', 'r') as input_csv, \
+         open('noNAcombined.csv', 'w', newline='') as output_csv:
+        
+        reader = csv.reader(input_csv)
+        writer = csv.writer(output_csv)
+
+        for row in reader:
+            # Replace empty values with 'NA'
+            modified_row = ['NA' if cell.strip() == '' else cell for cell in row]
+            writer.writerow(modified_row)
+
+# seperate into files to train with, and current dates to make a predicition on
+with open('noNAcombined.csv', 'r') as input_csv, \
+        open('train.csv', 'w', newline='') as na_csv, \
+        open('pred.csv', 'w', newline='') as not_na_csv:
+    
+    reader = csv.DictReader(input_csv)
+    na_writer = csv.DictWriter(na_csv, fieldnames=reader.fieldnames)
+    not_na_writer = csv.DictWriter(not_na_csv, fieldnames=reader.fieldnames)
+
+    na_writer.writeheader()
+    not_na_writer.writeheader()
+
+    for row in reader:
+        if row['Price Change'] == 'NA':
+            na_writer.writerow(row)
+        else:
+            not_na_writer.writerow(row)
