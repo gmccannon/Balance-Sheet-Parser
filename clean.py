@@ -1,6 +1,6 @@
 import os
 
-def delete_csv_files(directory="."):
+def delete_csv_files(directory="./temps"):
     try:
         for filename in os.listdir(directory):
             if filename.endswith(".csv"):
