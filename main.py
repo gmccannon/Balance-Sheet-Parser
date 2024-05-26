@@ -1,8 +1,9 @@
 import pandas as pd
 import yfinance as yf
 import csv
+import os
 
-companies = ['TMCI', 'CYBCF', 'CLLXF']
+companies = ['TMCI', 'CYBCF', 'CLLXF', 'AAPL']
 
 # Initialize a dictionary to hold company metrics
 company_metrics = {}
@@ -33,11 +34,22 @@ for company in companies:
                 df.to_csv(writer, header=first, index=True)
                 first = False  # Only include the header in the first write
 
+# remove comma at end of line to prepare for transpose
+for company in companies:
+    with open(f"{company}_combined_financials.csv", 'r') as reader:
+        lines = reader.readlines()
+        
+    with open(f"{company}_combined_financials.csv", 'w') as writer:
+        for line in lines:
+            if line.endswith(','):
+                line = line[:-1]
+            writer.write(line)
+
 #transpose
 for company in companies:
-        combined_df = pd.read_csv(f"{company}_combined_financials.csv", index_col=0)
-        transposed_df = combined_df.T
-        transposed_df.to_csv(f"{company}_combined_financials.csv", header=True, index=True)
+    combined_df = pd.read_csv(f"{company}_combined_financials.csv", index_col=0)
+    transposed_df = combined_df.T
+    transposed_df.to_csv(f"{company}_combined_financials.csv", header=True, index=True)
 
 # Name the first column 'Date'
 for company in companies:
@@ -91,3 +103,40 @@ for company in companies:
                 pass
         # Write
         df.to_csv(f"{company}_combined_financials.csv", index=False)
+
+# Combine all csvs
+unique_headers = set()
+for company in companies:
+    with open(f"{company}_combined_financials.csv", newline='') as f:
+        reader = csv.reader(f)
+        headers = next(reader, None)
+        if headers:
+            unique_headers.update(headers)
+# Sort the headers alphabetically for consistency
+sorted_headers = sorted(unique_headers)
+# Arange the stuff I care about
+if 'Date' in sorted_headers:
+    sorted_headers.remove('Date')
+    sorted_headers.insert(0, 'Date')
+if 'Price' in sorted_headers:
+    sorted_headers.remove('Price')
+    sorted_headers.insert(1, 'Price')
+if 'Price Change' in sorted_headers:
+    sorted_headers.remove('Price Change')
+    sorted_headers.insert(2, 'Price Change')
+# Write combined data to a new CSV file
+with open('combined.csv', 'w', newline='') as output_csv:
+    writer = csv.DictWriter(output_csv, fieldnames=sorted_headers)
+    writer.writeheader()
+    for company in companies:
+        with open(f"{company}_combined_financials.csv", newline='') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                # Rename variables in the 'Date' column
+                if 'Date' in row:
+                    row['Date'] = company + '_' + row['Date']
+                for header in sorted_headers:
+                    # Fill missing values with "NA"
+                    if header not in row:
+                        row[header] = "NA"
+                writer.writerow(row)
