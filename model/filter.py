@@ -7,11 +7,11 @@ with open('output.csv', 'r') as csvfile:
     
     # Iterate through each row in the CSV file
     for row in reader:
-        # Extract Ticker_Date and Price_Predicted values from the current row
+        # Extract Ticker_Date and Predicted_Change values from the current row
         ticker_date = row['Ticker_Date']
-        price_predicted = float(row['Price_Predicted'])  # Convert to float
+        Predicted_Change = float(row['Predicted_Change'])  # Convert to float
         
-        # Check if Price_Predicted is greater than 50
-        if 6 > price_predicted > 5:
+        # Check if Predicted_Change is greater than 50
+        if 6 > Predicted_Change > 5:
             # Print the row
-            print(f'Ticker_Date: {ticker_date}, Price_Predicted: {price_predicted}')
+            print(f'Ticker_Date: {ticker_date}, Predicted_Change: {Predicted_Change}')
