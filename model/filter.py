@@ -1,7 +1,7 @@
 import csv
 
 # Open the CSV file for reading
-with open('output.csv', 'r') as csvfile:
+with open('q_y_output.csv', 'r') as csvfile:
     # Create a CSV reader object
     reader = csv.DictReader(csvfile)
     
@@ -12,6 +12,6 @@ with open('output.csv', 'r') as csvfile:
         Predicted_Change = float(row['Predicted_Change'])  # Convert to float
         
         # Check if Predicted_Change is greater than 50
-        if 6 > Predicted_Change > 5:
+        if 4 > Predicted_Change > 3:
             # Print the row
             print(f'Ticker_Date: {ticker_date}, Predicted_Change: {Predicted_Change}')
